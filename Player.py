@@ -1,6 +1,8 @@
 import pygame
 from pygame import gfxdraw
 
+from random import randrange
+
 
 X = 0
 Y = 1
@@ -13,17 +15,31 @@ class Player:
 
         self.AI = AI
 
-    def play(self):
+    def play(self, clicked, boardSize, boardPosition):
         """ Checks whether the player is AI or not, making 
               his move according to that information  """  
 
-        return self.aiMove() if self.AI else self.playerMove
+        return self.aiMove() if self.AI else self.playerMove(clicked, boardSize, boardPosition)
 
-    def playerMove(self):
-        return
-    
+    def playerMove(self, clicked, boardSize, boardPosition):
+        mousePosition = pygame.mouse.get_pos()
+        def insideBoard(position):
+            """ Checks if the mouse is inside the board """
+            return  boardPosition[X] <= mousePosition[X] <= boardPosition[X] + boardSize and \
+                    boardPosition[Y] <= mousePosition[Y] <= boardPosition[Y] + boardSize
+
+        if clicked and insideBoard(mousePosition):
+            squareSize = boardSize // 3
+            
+            x = (mousePosition[X] - boardPosition[X]) // squareSize
+            y = (mousePosition[Y] - boardPosition[Y]) // squareSize
+
+            return (x, y)
+
+            
     def aiMove(self):
-        return
+        # Random approach
+        return (randrange(0, 3), randrange(0, 3))
 
 
 

@@ -44,22 +44,30 @@ class Board:
 
     def gameLoop(self):
         """ Main render loop of the game """
+        clicked = False
         while self.a_correr:
 
             # Events
             for event in pygame.event.get():
                 # Quit program (top right cross clicked)
                 if event.type == pygame.QUIT:
-                    self.a_correr = False          
+                    self.a_correr = False 
+
+                # Mouse was released
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    clicked = True        
 
             if self.update:
-                self.update()
+                self.display()
                 self.update = False
 
+            # The player that is playing makes a move
             if self.player1Turn:
-                
+                self.playerMove(self.player1, clicked, self.boardSize, self.boardPosition)
+            else:
+                self.playerMove(self.player2, clicked, self.boardSize, self.boardPosition)
 
-        print("saiu")
+            clicked = False
 
 
     def initGUI(self):
@@ -71,7 +79,7 @@ class Board:
         pygame.quit()
         pygame.font.quit()  
 
-    def update(self):
+    def display(self):
         """ Updates the contents of the screen
            [ game board, player status ...] """
 
@@ -119,13 +127,13 @@ class Board:
 
         pygame.display.update()
 
-    def playerMove(self, player):
+    def playerMove(self, player, clicked, boardSize, boardPosition):
         # Get play position 
-        position = player.playerMove()
+        position = player.play(clicked, boardSize, boardPosition)
 
-        if self.validPosition(position):
+        if position != None and self.validPosition(position):
             # Update board
-            self.board[position[X]][position[Y]] = player.symbol
+            self.board[position[Y]][position[X]] = player.symbol
             self.update = True
 
             # Passing the turn to the other player
@@ -133,7 +141,7 @@ class Board:
 
     def validPosition(self, position):
         """ Checks whether the position passed as an argument is valid """
-        return self.board[position[X]][position[Y]] == _
+        return self.board[position[Y]][position[X]] == _
 
 
     def checkVictory(self):
