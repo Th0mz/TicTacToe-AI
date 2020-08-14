@@ -9,4 +9,4 @@ board = Board(player1, player2)
 board.initGUI()
 board.gameLoop()
 
-board.endGUI()
+board.quitGUI()
