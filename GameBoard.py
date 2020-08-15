@@ -44,7 +44,7 @@ class Board:
 
         # Fonts
         self.initGUI()
-        self.winsFont = pygame.font.SysFont("Comic Sans MS", 20)
+        self.winsFont = pygame.font.Font("winFont.ttf", 20)
 
 
 
@@ -143,27 +143,32 @@ class Board:
                         player2Render(self.screen, self.boardSize, self.boardWeight, position, player2Color, backgroundColor)
         
         def renderWins():
+
+            winsText = "Wins : {}".format(self.player1.wins)
+            text_width, text_height = self.winsFont.size(winsText)
+
             # Render Player symbol
-            player1Position = (self.boardPosition[X] // 2 - 50, self.screen_size[Y] // 3)
+            player1Position = (self.boardPosition[X] // 2 - 50, self.screen_size[Y] // 2 - text_height // 2)
             player1Render(self.screen, self.boardSize, self.boardWeight, player1Position, player1Color)
 
             # Render text
-            winsText = "Wins : {}".format(self.player1.wins)
-            player1Wins = self.winsFont.render(winsText, True, (0, 0, 0))
+            player1Wins = self.winsFont.render(winsText, True, player1Color)
 
-            text_width, text_height = self.winsFont.size(winsText)
-            textPosition = (player1Position[X] -text_width // 2, player1Position[Y] + 40 - text_height // 2)
+            textPosition = (player1Position[X] -text_width // 2, player1Position[Y] + 40 - text_height // 2 - 4)
             self.screen.blit(player1Wins, textPosition)
             
+
+
+            winsText = "Wins : {}".format(self.player2.wins)
+            text_width, text_height = self.winsFont.size(winsText)
+
             # Render Player symbol
-            player2Position = (self.screen_size[X] - player1Position[X], self.screen_size[Y] // 3)
+            player2Position = (self.screen_size[X] - player1Position[X], self.screen_size[Y] // 2 - text_height // 2)
             player2Render(self.screen, self.boardSize, self.boardWeight, player2Position, player2Color, backgroundColor)
 
             # Render text
-            winsText = "Wins : {}".format(self.player2.wins)
-            player2Wins = self.winsFont.render(winsText, True, (0, 0, 0))
+            player2Wins = self.winsFont.render(winsText, True, player2Color)
 
-            text_width, text_height = self.winsFont.size(winsText)
             textPosition = (player2Position[X] -text_width // 2, player2Position[Y] + 40 - text_height // 2)
             self.screen.blit(player2Wins, textPosition)
         
@@ -203,7 +208,7 @@ class Board:
                     winner = row[0]
 
                     # Checks if the elements of the row are all the same
-                    if winner == row[1] and winner == row[2]:
+                    if winner != None and winner == row[1] and winner == row[2]:
                         return winner
             else:
                 return winner
@@ -215,7 +220,7 @@ class Board:
                     winner = board[0][x]
 
                     # Checks if the elements of the column are all the same
-                    if winner == board[1][x] and winner == board[2][x]:
+                    if winner != None and winner == board[1][x] and winner == board[2][x]:
                         return winner
             else:
                 return winner
@@ -225,12 +230,12 @@ class Board:
             if winner == None:
                 # Check main diagonal
                 winner = board[0][0]
-                if winner == board[1][1] and winner == board[2][2]:
+                if winner != None and winner == board[1][1] and winner == board[2][2]:
                     return winner
 
                 # Check secondary diagonal
                 winner = board[0][2]
-                if winner == board[1][1] and winner == board[2][0]:
+                if winner != None and winner == board[1][1] and winner == board[2][0]:
                     return winner
             else:
                 return winner
