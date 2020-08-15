@@ -38,6 +38,7 @@ class Player:
 
             
     def aiMove(self):
+        """ Choosing the best move using the minimax algorithm """
         # Random approach
         return (randrange(0, 3), randrange(0, 3))
 
