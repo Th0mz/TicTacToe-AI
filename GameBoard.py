@@ -3,20 +3,13 @@ from pygame import gfxdraw
 
 from time import sleep
 
-from Player import player1Render, player2Render
-
 _ = None
 
 X = 0
 Y = 1
-WIDTH = 2
-HEIGHT = 3
 
 class Board:
-    def __init__(self, player1, player2):
-        # Screen
-        self.screen_size = (700, 250)
-        self.screen = pygame.display.set_mode(self.screen_size)
+    def __init__(self, screen_size):
 
         # Board
         self.board = [[_, _, _],
@@ -24,178 +17,29 @@ class Board:
                       [_, _, _]]
         
         # > Display stats board
-        self.boardWeight = 5
-        self.boardSize = 180 
+        self.lineWeight = 5
+        self.size = 180 
 
         # Centered with the screen
-        self.boardPosition = (self.screen_size[X] // 2 - self.boardSize // 2, \
-                              self.screen_size[Y] // 2 - self.boardSize // 2  )
+        self.position = (screen_size[X] // 2 - self.size // 2, \
+                         screen_size[Y] // 2 - self.size // 2  )
 
-        # Players
-        self.player1 = player1
-        self.player2 = player2
-
-        # Game Loop variables
-        self.player1Turn = True
-        self.a_correr = True
-        
-        # When true updates the screen
-        self.update = True
-
-        # Fonts
-        self.initGUI()
-        self.winsFont = pygame.font.Font("winFont.ttf", 20)
+        self.blankSpace = _
 
 
+    def playerMove(self, player, position, game):
+        """ Given a player and a position makes a move in the 
+              board for that player in the position given """
 
-
-    def gameLoop(self):
-        """ Main render loop of the game """
-        clicked = False
-        while self.a_correr:
-
-            # Events
-            for event in pygame.event.get():
-                # Quit program (top right cross clicked)
-                if event.type == pygame.QUIT:
-                    self.a_correr = False 
-
-                # Mouse was released
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    clicked = True        
-
-            # The player that is playing makes a move
-            if self.player1Turn:
-                self.playerMove(self.player1, clicked, self.boardSize, self.boardPosition)
-            else:
-                self.playerMove(self.player2, clicked, self.boardSize, self.boardPosition)
-
-            # Updates the screen board with the new player move
-            if self.update:
-                self.display()
-                self.update = False
-
-
-            # Cheks if someone won
-            winner = self.checkVictory(self.board)
-            if winner != None:
-                sleep(0.5)
-                if winner == self.player1.symbol:
-                    self.player1.wins += 1
-                else:
-                    self.player2.wins += 1
-
-                self.restartGame()
-
-            if self.checkTie():
-                sleep(0.5)
-                self.restartGame()
-
-            clicked = False
-        
-        self.quitGUI()
-
-
-    def initGUI(self):
-        # Init Pygame :
-        pygame.init() 
-        pygame.font.init()
-
-    def quitGUI(self):
-        pygame.quit()
-        pygame.font.quit()  
-
-    def display(self):
-        """ Updates the contents of the screen
-           [ game board, player status ...] """
-
-        # Colors
-        backgroundColor = (20, 189, 172)
-        boardColor = (13, 161, 146)
-        player1Color = (84, 84, 84)
-        player2Color = (242, 235, 211)
-        
-        def renderBoard():
-            """ Renders the tic tac toe board """
-            # Position and size of board lines
-            linePositions = [(self.boardSize // 3 + self.boardPosition[X] - self.boardWeight // 2, self.boardPosition[Y], self.boardWeight, self.boardSize), \
-                             ((2 * self.boardSize) // 3 + self.boardPosition[X] - self.boardWeight // 2, self.boardPosition[Y], self.boardWeight, self.boardSize), \
-                             (self.boardPosition[X], self.boardSize // 3 + self.boardPosition[Y] - self.boardWeight // 2, self.boardSize, self.boardWeight), \
-                             (self.boardPosition[X], (2 * self.boardSize) // 3 + self.boardPosition[Y] - self.boardWeight // 2, self.boardSize, self.boardWeight)]
-
-            # Render board
-            for position in linePositions:
-                rectangle = pygame.Rect(position[X], position[Y], position[WIDTH], position[HEIGHT])
-                pygame.draw.rect(self.screen, boardColor, rectangle)
-
-        def renderPlayers():
-            """ Renders the plays of the players """
-            # Center position of the first place of the board
-            firstPos = (self.boardPosition[X] + self.boardSize // 6, self.boardPosition[Y] + self.boardSize // 6)
-            
-            for y in range(len(self.board)):
-                for x in range(len(self.board[0])):
-                    if self.board[y][x] == self.player1.symbol:
-                        position = (firstPos[X] + (x * self.boardSize // 3), firstPos[Y] + (y * self.boardSize // 3))
-                        player1Render(self.screen, self.boardSize, self.boardWeight, position, player1Color)
-                    elif self.board[y][x] == self.player2.symbol:
-                        position = (firstPos[X] + (x * self.boardSize // 3), firstPos[Y] + (y * self.boardSize // 3))
-                        player2Render(self.screen, self.boardSize, self.boardWeight, position, player2Color, backgroundColor)
-        
-        def renderWins():
-
-            winsText = "Wins : {}".format(self.player1.wins)
-            text_width, text_height = self.winsFont.size(winsText)
-
-            # Render Player symbol
-            player1Position = (self.boardPosition[X] // 2 - 50, self.screen_size[Y] // 2 - text_height // 2)
-            player1Render(self.screen, self.boardSize, self.boardWeight, player1Position, player1Color)
-
-            # Render text
-            player1Wins = self.winsFont.render(winsText, True, player1Color)
-
-            textPosition = (player1Position[X] -text_width // 2, player1Position[Y] + 40 - text_height // 2 - 4)
-            self.screen.blit(player1Wins, textPosition)
-            
-
-
-            winsText = "Wins : {}".format(self.player2.wins)
-            text_width, text_height = self.winsFont.size(winsText)
-
-            # Render Player symbol
-            player2Position = (self.screen_size[X] - player1Position[X], self.screen_size[Y] // 2 - text_height // 2)
-            player2Render(self.screen, self.boardSize, self.boardWeight, player2Position, player2Color, backgroundColor)
-
-            # Render text
-            player2Wins = self.winsFont.render(winsText, True, player2Color)
-
-            textPosition = (player2Position[X] -text_width // 2, player2Position[Y] + 40 - text_height // 2)
-            self.screen.blit(player2Wins, textPosition)
-        
-        # Background color
-        self.screen.fill(backgroundColor)
-
-        renderBoard()
-        renderPlayers()
-        renderWins()
-
-        pygame.display.update()
-
-    def playerMove(self, player, clicked, boardSize, boardPosition):
-        # Get play position 
-        position = player.play(clicked, boardSize, boardPosition)
-
-        if position != None and self.validPosition(position):
-            if player.AI:
-                sleep(0.3)
+        if position != None and self.emptyPosition(position):
             # Update board
             self.board[position[Y]][position[X]] = player.symbol
-            self.update = True
+            game.updateScreen()
 
             # Passing the turn to the other player
-            self.player1Turn = not self.player1Turn
+            game.changeTurn()
 
-    def validPosition(self, position):
+    def emptyPosition(self, position):
         """ Checks whether the position passed as an argument is valid """
         return self.board[position[Y]][position[X]] == _
 
@@ -257,9 +101,9 @@ class Board:
         
         return True
 
-    def restartGame(self):
+    def restartGame(self, game):
         self.board = [[_, _, _],
                       [_, _, _],
                       [_, _, _]]
 
-        self.update = True
+        game.updateScreen()
