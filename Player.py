@@ -15,11 +15,11 @@ class Player:
 
         self.AI = AI
 
-    def play(self, clicked, boardSize, boardPosition):
+    def play(self, clicked, board, otherPlayer):
         """ Checks whether the player is AI or not, making 
               his move according to that information  """  
 
-        return self.aiMove() if self.AI else self.playerMove(clicked, boardSize, boardPosition)
+        return self.aiMove(board, otherPlayer) if self.AI else self.playerMove(clicked, board.size, board.position)
 
     def playerMove(self, clicked, boardSize, boardPosition):
         mousePosition = pygame.mouse.get_pos()
@@ -37,10 +37,70 @@ class Player:
             return (x, y)
 
             
-    def aiMove(self):
+    def aiMove(self, board, otherPlayer):
         """ Choosing the best move using the minimax algorithm """
+        def allBlankPositions(board):
+            blankPositions = []
+
+            for y in range(len(board.board)):
+                for x in range(len(board.board[0])):
+                    if board.emptyPosition((x, y)):
+                        blankPositions += [(x, y)]
+
+            return blankPositions
+
+        def minimax(board, myTurn, depth):
+            player = self if myTurn else otherPlayer
+            # Terminal Cases one of them won or was a tie
+            winner = board.checkVictory(board.board)
+            if winner == self.symbol:
+                return 10 - depth
+
+            if winner == otherPlayer.symbol:
+                return - 10 + depth
+            
+            if board.checkTie():
+                return 0
+
+            # Otherwise make a move
+            scores = []
+            for position in allBlankPositions(board):
+                # Make the move
+                board.board[position[Y]][position[X]] = player.symbol
+                # Check the move score
+                moveScore = minimax(board, False, depth + 1)
+                scores.append(moveScore)
+
+                # Undo the move
+                board.board[position[Y]][position[X]] = board.blankSpace
+
+            if myTurn:
+                return max(scores)
+            else:
+                return min(scores)
+
+        
+        bestScore = - 9999
+        bestMove = (1, 1)
+
+        for position in allBlankPositions(board):
+            # Make the move
+            board.board[position[Y]][position[X]] = self.symbol
+            # Check the move score
+            moveScore = minimax(board, False, 0)
+            # Undo the move
+            board.board[position[Y]][position[X]] = board.blankSpace
+
+            # Check if the moveScore is the best seen until now
+            if moveScore > bestScore:
+                bestScore = moveScore
+                bestMove = position
+
+        return bestMove
+
+
         # Random approach
-        return (randrange(0, 3), randrange(0, 3))
+        #return (randrange(0, 3), randrange(0, 3))
 
 
 
