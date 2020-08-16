@@ -77,7 +77,7 @@ class Board:
 
 
             # Cheks if someone won
-            winner = self.checkVictory()
+            winner = self.checkVictory(self.board)
             if winner != None:
                 sleep(0.5)
                 if winner == self.player1.symbol:
@@ -186,6 +186,8 @@ class Board:
         position = player.play(clicked, boardSize, boardPosition)
 
         if position != None and self.validPosition(position):
+            if player.AI:
+                sleep(0.3)
             # Update board
             self.board[position[Y]][position[X]] = player.symbol
             self.update = True
@@ -198,7 +200,7 @@ class Board:
         return self.board[position[Y]][position[X]] == _
 
 
-    def checkVictory(self):
+    def checkVictory(self, board):
         """ Check if any of the players won """
 
         def checkAllRow(board, winner):
@@ -241,9 +243,9 @@ class Board:
                 return winner
         
         # Check victory
-        winner = checkAllRow(self.board, None)
-        winner = checkAllColumn(self.board, winner)
-        winner = checkAllDiagonal(self.board, winner)
+        winner = checkAllRow(board, None)
+        winner = checkAllColumn(board, winner)
+        winner = checkAllDiagonal(board, winner)
 
         return winner
 
