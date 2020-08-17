@@ -125,7 +125,10 @@ def player2Render(screen, boardSize, boardWeight, position, color, backgroundCol
                           radius - thickness, backgroundColor)
 
 
-def player1Render(screen, boardSize, boardWeight, position, color):
+def player1Render(screen, image, position):
+    screen.blit(image, position)
+
+def player1Renderr(screen, boardSize, boardWeight, position, color):
     """ Renders a circle on the screen [Player2 symbol] """
     
     # Size of the squere that contains the player symbol

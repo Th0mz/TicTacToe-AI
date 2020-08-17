@@ -91,6 +91,8 @@ class Game:
         pygame.init() 
         pygame.font.init()
 
+        self.player1Symbol = pygame.image.load("cross.png")
+
     def quitGUI(self):
         pygame.quit()
         pygame.font.quit()
@@ -133,8 +135,8 @@ class Game:
             for y in range(len(board.board)):
                 for x in range(len(board.board[0])):
                     if board.board[y][x] == self.player1.symbol:
-                        position = (firstPos[X] + (x * board.size // 3), firstPos[Y] + (y * board.size // 3))
-                        player1Render(self.screen, board.size, board.lineWeight, position, player1Color)
+                        position = (firstPos[X] + (x * board.size // 3) - self.player1Symbol.get_width() // 2, firstPos[Y] + (y * board.size // 3) - self.player1Symbol.get_height() // 2)
+                        player1Render(self.screen, self.player1Symbol, position)
                     elif board.board[y][x] == self.player2.symbol:
                         position = (firstPos[X] + (x * board.size // 3), firstPos[Y] + (y * board.size // 3))
                         player2Render(self.screen, board.size, board.lineWeight, position, player2Color, backgroundColor)
@@ -145,13 +147,13 @@ class Game:
             text_width, text_height = self.winsFont.size(winsText)
 
             # Render Player symbol
-            player1Position = (board.position[X] // 2 - 50, self.screen_size[Y] // 2 - text_height // 2)
-            player1Render(self.screen, board.size, board.lineWeight, player1Position, player1Color)
-
+            player1PositionCenter = (board.position[X] // 2 - 50 // 2, self.screen_size[Y] // 2 - text_height // 2)
+            player1PositionCorner = (player1PositionCenter[X] - self.player1Symbol.get_width() // 2, player1PositionCenter[Y] - self.player1Symbol.get_height() // 2)
+            player1Render(self.screen, self.player1Symbol, player1PositionCorner)
             # Render text
             player1Wins = self.winsFont.render(winsText, True, player1Color)
 
-            textPosition = (player1Position[X] -text_width // 2, player1Position[Y] + 40 - text_height // 2 - 4)
+            textPosition = (player1PositionCenter[X] -text_width // 2, player1PositionCenter[Y] + 40 - text_height // 2 - 4)
             self.screen.blit(player1Wins, textPosition)
             
 
@@ -160,7 +162,7 @@ class Game:
             text_width, text_height = self.winsFont.size(winsText)
 
             # Render Player symbol
-            player2Position = (self.screen_size[X] - player1Position[X], self.screen_size[Y] // 2 - text_height // 2)
+            player2Position = (self.screen_size[X] - player1PositionCenter[X], self.screen_size[Y] // 2 - text_height // 2)
             player2Render(self.screen, board.size, board.lineWeight, player2Position, player2Color, backgroundColor)
 
             # Render text
