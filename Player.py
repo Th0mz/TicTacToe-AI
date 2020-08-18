@@ -36,68 +36,79 @@ class Player:
 
             return (x, y)
 
-            
     def aiMove(self, board, otherPlayer):
         """ Choosing the best move using the minimax algorithm """
         def allBlankPositions(board):
+            """ Returns all positions that the player can play """
             blankPositions = []
 
             for y in range(len(board.board)):
                 for x in range(len(board.board[0])):
                     if board.emptyPosition((x, y)):
                         blankPositions += [(x, y)]
-
+            
             return blankPositions
 
-        def minimax(board, myTurn, depth):
-            player = self if myTurn else otherPlayer
-            # Terminal Cases one of them won or was a tie
-            winner = board.checkVictory(board.board)
-            if winner == self.symbol:
-                return 10 - depth
+        def minimax(board, depth, myTurn):
+            """ Minimax algorithm that finds the move with the best score """
 
-            if winner == otherPlayer.symbol:
-                return - 10 + depth
+            # Score Values for each terminal state
+            scores = {self.symbol : 1,
+                      otherPlayer.symbol : -1,
+                      "Tie" : 0}
             
+            # > Terminal States (one of the players win or its a tie)
+            winner = board.checkVictory(board.board)
+            if winner != None:
+                return scores[winner]
+
             if board.checkTie():
-                return 0
+                return scores["Tie"]
 
-            # Otherwise make a move
-            scores = []
-            for position in allBlankPositions(board):
-                # Make the move
-                board.board[position[Y]][position[X]] = player.symbol
-                # Check the move score
-                moveScore = minimax(board, False, depth + 1)
-                scores.append(moveScore)
-
-                # Undo the move
-                board.board[position[Y]][position[X]] = board.blankSpace
-
+            # If its not a terminal state find all the possible moves and rate them
             if myTurn:
-                return max(scores)
+                bestScore = -999
+                for position in allBlankPositions(board):
+                    # Choose a free position and play in it
+                    board.board[position[Y]][position[X]] = self.symbol
+                    # Calculate the score of that move
+                    score = minimax(board, depth+1, not myTurn)
+                    # Undo the move
+                    board.board[position[Y]][position[X]] = board.blankSpace
+                    bestScore = max(score, bestScore)
+                
+                return bestScore
             else:
-                return min(scores)
+                bestScore = 999
+                for position in allBlankPositions(board):
+                    # Choose a free position and play in it
+                    board.board[position[Y]][position[X]] = otherPlayer.symbol
+                    # Calculate the score of that move
+                    score = minimax(board, depth+1, not myTurn)
+                    # Undo the move
+                    board.board[position[Y]][position[X]] = board.blankSpace
+                    bestScore = min(score, bestScore)
+                
+                return bestScore
 
-        
-        bestScore = - 9999
-        bestMove = (1, 1)
+ 
+
+        bestScore = -999
+        bestMove = (0, 0)
 
         for position in allBlankPositions(board):
-            # Make the move
+            # Choose a free position and play in it
             board.board[position[Y]][position[X]] = self.symbol
-            # Check the move score
-            moveScore = minimax(board, False, 0)
+            # Calculate the score of that move
+            score = minimax(board, 0, False)
             # Undo the move
             board.board[position[Y]][position[X]] = board.blankSpace
-
-            # Check if the moveScore is the best seen until now
-            if moveScore > bestScore:
-                bestScore = moveScore
+            
+            if score > bestScore:
+                bestScore = score
                 bestMove = position
 
         return bestMove
-
 
         # Random approach
         #return (randrange(0, 3), randrange(0, 3))

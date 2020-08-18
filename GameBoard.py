@@ -39,9 +39,12 @@ class Board:
             # Passing the turn to the other player
             game.changeTurn()
 
+            if player.AI:
+                sleep(0.4)
+
     def emptyPosition(self, position):
         """ Checks whether the position passed as an argument is valid """
-        return self.board[position[Y]][position[X]] == _
+        return self.board[position[Y]][position[X]] == self.blankSpace
 
 
     def checkVictory(self, board):
