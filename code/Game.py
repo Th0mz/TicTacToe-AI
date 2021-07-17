@@ -35,7 +35,7 @@ class Game:
 
         # Fonts
         self.initGUI()
-        self.winsFont = pygame.font.Font("winFont.ttf", 20)
+        self.winsFont = pygame.font.Font("../assets/winFont.ttf", 20)
 
 
     def gameLoop(self):
@@ -91,7 +91,7 @@ class Game:
         pygame.init() 
         pygame.font.init()
 
-        self.player1Symbol = pygame.image.load("cross.png")
+        self.player1Symbol = pygame.image.load("../assets/cross.png")
 
     def quitGUI(self):
         pygame.quit()
